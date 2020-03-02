@@ -1,0 +1,37 @@
+{
+  "id": "1659638",
+  "name": "wyyyyy",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "8642726",
+      "name": "right",
+      "font_class": "right",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "13021905",
+      "name": "搜索",
+      "font_class": "sousuo1",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
+      "icon_id": "398959",
+      "name": "耳机",
+      "font_class": "iconfonterji",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "2284643",
+      "name": "播放",
+      "font_class": "bofang",
+      "unicode": "e819",
+      "unicode_decimal": 59417
+    }
+  ]
+}
