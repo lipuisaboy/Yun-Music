@@ -1,5 +1,5 @@
 <template>
-  <div class="song-bg">
+  <div class="song-bg" @click="touchWeb()">
     <div class="bg" :style="{backgroundImage:`url(${songs.al.picUrl})`}" v-if="songs.al"></div>
     <div class="bg-blur"></div>
     <div class="content">
@@ -36,7 +36,7 @@
         <a href="#" class="left">打开</a>
         <a href="#" class="right">下载</a>
       </div>
-      <audio :src="play.url"  muted="muted" @ended="end()"></audio>
+      <audio :src="play.url"  muted="false" @ended="end()" ref="audios" preload="load"></audio>
     </div>
   </div>
 </template>
@@ -48,10 +48,10 @@ import {getLyric} from '../../request/lyric'
 export default {
   data(){
     return{
-      swiperOption:{
-        direction:'vertical',
-        centeredSlides:true
-      },
+      // swiperOption:{
+      //   direction:'vertical',
+      //   centeredSlides:true
+      // },
       songs:{},
       id:null,
       play:{},
@@ -75,8 +75,11 @@ export default {
     this._getUrl(this.id)
     this._getDetail(this.id)
     this._getLyric(this.id)
-    this.webPlay()
+    // this.webPlay()
     // this.timer()
+    // setTimeout(() => {
+    //   this.forIos()
+    // })
   },
   destroyed(){
     window.console.log('离开了')
@@ -115,13 +118,14 @@ export default {
         this.lc = arr2
       })
     },
-    webPlay(){
-      document.addEventListener('touchstart',() => {
-        var Audio = document.getElementsByTagName('audio')[0] 
+    touchWeb(){
           this.isShow = !this.isShow
           this.isStart = !this.isStart
         if(this.isShow === false){
-          Audio.play()
+          this.$refs.audios.play()
+          this.$refs.audios.muted = false
+          window.console.log(this.$refs.audios.muted)
+          window.console.log(this.$refs.audios.volume)
           this.timer()
           this.timer2()
           //  this.getTime()
@@ -134,11 +138,44 @@ export default {
           clearInterval(this.tiemr2)
           this.getIndex()
           let oImg = document.getElementById('start')
-          Audio.pause()
+          this.$refs.audios.pause()
           oImg.style.transform = `rotate(${(360*this.number) + this.deg}deg)`;
         }
-      },false)
     },
+      forIos(){
+        document.addEventListener('touchstart',this.toPlay(),false)
+        document.removeEventListener('touchstart',this.toPlay(),false)
+      },
+      toPlay(){
+        var Audio = document.getElementsByTagName('audio')[0]
+        Audio.load()
+      },
+      // document.addEventListener('touchstart',() => {
+      //   this.$refs.audios.play()
+      //     this.$refs.audios.pause()
+      //   // var Audio = document.getElementsByTagName('audio')[0]
+      //   if(this.play.url){
+      //     this.isShow = !this.isShow
+      //     this.isStart = !this.isStart
+      //   if(this.isShow === false){
+      //     this.$refs.audios.play()
+      //     this.timer()
+      //     this.timer2()
+      //     //  this.getTime()
+      //     let oImg = document.getElementById('start')
+      //     // this.toPlay()
+      //     oImg.style.transform = `rotate(60000deg)`
+      //     oImg.style.transition = 'all 6000s linear'
+      //   }else if(this.isShow === true){
+      //     clearInterval(this.tiemr)
+      //     clearInterval(this.tiemr2)
+      //     this.getIndex()
+      //     let oImg = document.getElementById('start')
+      //     this.$refs.audios.pause()
+      //     oImg.style.transform = `rotate(${(360*this.number) + this.deg}deg)`;
+      //   }
+      //   }
+      // },false),
     getIndex(){
       var Audio = document.getElementsByTagName('audio')[0]
       this.lc.find((item,index) => {
@@ -318,7 +355,7 @@ export default {
     color: #fff;
   }
   .gun{
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 50%;
     margin-left: -10px;
