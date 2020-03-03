@@ -12,14 +12,17 @@
       </div>
       <div class="out">
         <div class="play">
-          <img :src="songs.al.picUrl" alt="" @click="showClick()" id="start" 
+          <img :src="songs.al.picUrl" alt="" id="start" 
                 v-if="songs.al"> 
-          <i class="iconfont icon-bofang start" v-if="isShow" @click="toShow()"></i>
+          <i class="iconfont icon-bofang start" v-if="isShow"></i>
         </div>
       </div>
       <div class="lc-info">
         <p v-if="songs.al">{{songs.al.name}}</p>
-        <p v-if="songs.ar[0]" class="lc-name">{{songs.ar[0].name}}</p>
+        <p v-if="songs.ar[0]" class="lc-name">
+          <span>{{songs.ar[0].name}}</span>
+          <span v-if="songs.ar[1]">- {{songs.ar[1].name}}</span>
+        </p>
       </div>
       <div class="lyric" v-for="(item,index) in lc" :key="index">
         <p v-show="index === currentIndex">{{item.content}}</p>
@@ -33,7 +36,7 @@
         <a href="#" class="left">打开</a>
         <a href="#" class="right">下载</a>
       </div>
-      <audio :src="play.url" autoplay muted="muted" @ended="end()"></audio>
+      <audio :src="play.url"  muted="muted" @ended="end()"></audio>
     </div>
   </div>
 </template>
@@ -72,24 +75,13 @@ export default {
     this._getUrl(this.id)
     this._getDetail(this.id)
     this._getLyric(this.id)
-    setTimeout(()=>{
-      window.console.log(this.lc)
-      this.isShow = !this.isShow
-      this.isStart = !this.isStart
-      this.timer2()
-      //  this.getTime()
-      window.console.log(this.songs)
-        let oImg = document.getElementById('start')
-        this.toPlay()
-        oImg.style.transform = `rotate(60000deg)`
-        oImg.style.transition = 'all 6000s linear'
-    },1000)
-    this.timer()
+    this.webPlay()
+    // this.timer()
   },
-  // destroyed(){
-  //   // window.console.log('离开了')
-  //   // this.back()
-  // },
+  destroyed(){
+    window.console.log('离开了')
+    this.back()
+  },
   methods:{
     _getUrl(id){
       getUrl(id).then(res => {
@@ -123,24 +115,29 @@ export default {
         this.lc = arr2
       })
     },
-    showClick(){
-      this.isShow = !this.isShow
-      var Audio = document.getElementsByTagName('audio')[0]
-      if(this.isShow){
-        clearInterval(this.tiemr)
-        clearInterval(this.tiemr2)
-        this.getIndex()
-        let oImg = document.getElementById('start')
-        Audio.pause()
-        oImg.style.transform = `rotate(${(360*this.number) + this.deg}deg)`;
-      }else if(!this.isShow){
-        let oImg = document.getElementById('start')
-        Audio.play()
-        oImg.style.transform = `rotate(60000deg)`;
-        oImg.style.transition = `all 6000s linear`;
-        this.timer()
-        this.timer2()
-      }
+    webPlay(){
+      document.addEventListener('touchstart',() => {
+        var Audio = document.getElementsByTagName('audio')[0] 
+          this.isShow = !this.isShow
+          this.isStart = !this.isStart
+        if(this.isShow === false){
+          Audio.play()
+          this.timer()
+          this.timer2()
+          //  this.getTime()
+          let oImg = document.getElementById('start')
+          // this.toPlay()
+          oImg.style.transform = `rotate(60000deg)`
+          oImg.style.transition = 'all 6000s linear'
+        }else if(this.isShow === true){
+          clearInterval(this.tiemr)
+          clearInterval(this.tiemr2)
+          this.getIndex()
+          let oImg = document.getElementById('start')
+          Audio.pause()
+          oImg.style.transform = `rotate(${(360*this.number) + this.deg}deg)`;
+        }
+      },false)
     },
     getIndex(){
       var Audio = document.getElementsByTagName('audio')[0]
@@ -152,16 +149,6 @@ export default {
           this.currentIndex = this.nowTime
         }
       })
-    },
-    toShow(){
-      this.isShow = !this.isShow
-        let oImg = document.getElementById('start')
-        // window.console.log(this.deg)
-        oImg.style.transform = `rotate(60000deg)`;
-        oImg.style.transition = 'all 6000s linear';
-        this.timer()
-        this.timer2()
-        this.toPlay()
     },
     /*
       控制轮盘进度
@@ -192,16 +179,8 @@ export default {
       let oImg = document.getElementById('start')
       oImg.style.transform = `rotate(${(360*this.number) + this.deg}deg)`;
     },
-    // back(){
-    //   this.$router.replace('/home')
-    // },
-    toPlay(){
-       let Audio = document.getElementsByTagName('audio')[0]
-        if(!this.isShow){
-          Audio.play()
-        }else{
-          Audio.pause()
-        }
+    back(){
+      this.$router.replace('/')
     }
   }
 }

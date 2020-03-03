@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router/index'
-import './assets/img/font_1659638_0xhgiwjc993c/iconfont.css'
+import './assets/img/font_1659638_9taxpxda3qw/iconfont.css'
 
 import  VueAwesomeSwiper  from 'vue-awesome-swiper'
 import 'swiper/dist/css/swiper.css' 

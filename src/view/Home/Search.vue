@@ -3,13 +3,33 @@
     <div class="search">
       <div class="top">
         <i class="iconfont icon-sousuo1 icon"></i>
-        <input type="text" class="in-search" placeholder="搜索歌曲、歌手、专辑" @keydown.enter="getWant()">
+        <input type="text" class="in-search" placeholder="搜索歌曲、歌手、专辑" @keyup="getWant($event)"  @keydown="toChange()">
       </div>
     </div>
     <div class="body" v-if="isShow">
       <div class="title">热门搜索</div>
-      <div v-for="(item,index) in list" :key="index" class="hot-list" @click="hotSearch(item.first)">
-        {{item.first}}
+      <div class="mr">
+        <div v-for="(item,index) in list" :key="index" class="hot-list" @click="hotSearch(item.first)">
+          {{item.first}}
+        </div>
+      </div>
+      <div v-if="arr.length">
+        <div v-for="(item,index) in arr" :key="index" class="history">
+          <i class="iconfont icon-lishi icon1"></i>
+          <div class="his-name">{{item}}</div>
+          <i class="iconfont icon-error icon2" @click="removeHis(item)"></i>
+      </div>
+      </div>
+    </div>
+    <div class="suggest" v-if="isSuggest">
+      <div class="sug-top">搜索"{{value}}"</div>
+      <div v-for="(item,index) in suggest" :key="index" class="sug-info" @click="toPlay(item.id)"> 
+        <i class="iconfont icon-sousuo1 sear"></i>
+        <div class="sug-name">
+          <span>{{item.name}}</span>
+          <span> - </span>
+          <span v-if="item.artists">{{item.artists[0].name}}</span>
+        </div>
       </div>
     </div>
     <div class="want" v-if="isHidden">
@@ -49,7 +69,7 @@
           </div>
           <i class="iconfont icon-right right"></i>
         </div>
-        <div v-if="pick.mv" class="pick-one">
+        <div v-if="pick.mv" class="pick-one" @click="toMv(pick.mv[0].id)">
           <div class="mv">
             <i class="iconfont icon-bofang mv-icon"></i>
             <img :src="pick.mv[0].cover" alt="">
@@ -70,7 +90,7 @@
           </div>
           <i class="iconfont icon-right right"></i>
         </div>
-        <div v-if="pick.radio" class="pick-one">
+        <div v-if="pick.radio" class="pick-one" @click="toRadio(pick.radio[0].id)">
           <div class="radio">
             <img :src="pick.radio[0].picUrl" alt="">
           </div>
@@ -127,6 +147,7 @@
 <script>
 import {getSearch,getFind} from '../../request/search.js'
 import {getPick} from '../../request/pick'
+import {getRecommen} from '../../request/recommen'
 
 export default {
   data(){
@@ -137,20 +158,16 @@ export default {
       find:[],
       value:null,
       page:0,
-      pick:{}
+      pick:{},
+      currentArr:[],
+      arr:[],
+      suggest:[],
+      isSuggest:false
     }
   },
-  // filters:{
-  //   maxBr:function(num){
-  //     if(num > 320000){
-  //       return true
-  //     }else{
-  //       return false
-  //     }
-  //   }
-  // },
   created(){
     this._getSearch()
+    this.getArr()
   },
   methods:{
     _getSearch(){
@@ -159,20 +176,39 @@ export default {
         this.list = res.result.hots
       })
     },
-    getWant(){
-      this.isShow = false
-      this.isHidden = true
+    toChange(){
+      this.isShow = false;
+      this.isHidden =  false;
+      this.isSuggest = true;
       let put = document.getElementsByTagName('input')[0]
-      let find = put.value
       this.value = put.value
-      getFind(find,'song','20',this.page).then(res => {
-          // window.console.log(res.data.songs)
-          this.find = res.data.songs
-      }) 
-      getPick(find).then(res => {
-        // window.console.log(res)
-        this.pick = res.result
+      getRecommen(put.value).then(res => {
+        this.suggest = res.result.songs
       })
+    },
+    getWant(event){
+      window.console.log(event)
+      if(event.keyCode == 13){
+        this.isShow = false
+        this.isSuggest = false
+        this.isHidden = true
+        let put = document.getElementsByTagName('input')[0]
+        //存储sessionStorage
+        this.currentArr.unshift(put.value)
+        sessionStorage.setItem('arr',JSON.stringify(this.currentArr))
+        window.console.log(sessionStorage)
+        window.console.log(this.currentArr)
+        let find = put.value
+        this.value = put.value
+        getFind(find,'song','20',this.page).then(res => {
+            // window.console.log(res.data.songs)
+            this.find = res.data.songs
+        }) 
+        getPick(find).then(res => {
+          // window.console.log(res)
+          this.pick = res.result
+        })
+      }
     },
     toPlay(id){
       this.$router.push(`/findSong/${id}`)
@@ -193,20 +229,56 @@ export default {
       let put = document.getElementsByTagName('input')[0]
       put.value = type
       this.value = type
+      this.currentArr.unshift(this.value)
+      sessionStorage.setItem('arr',JSON.stringify(this.currentArr))
       getFind(type,'song','20',this.page).then(res => {
         this.find = res.data.songs
-        window.console.log(this.find)
+        // window.console.log(this.find)
       })
       getPick(type).then(res => {
-        window.console.log(res.result)
+        // window.console.log(res.result)
         this.pick = res.result
       })
+    },
+    //判断session是否存在
+    getArr(){
+      if(sessionStorage.length && sessionStorage.getItem('arr') !== ''){
+        this.currentArr = JSON.parse(sessionStorage.getItem('arr'))
+        this.arr = JSON.parse(sessionStorage.getItem('arr'))
+    }
+  },
+  //删除session
+    removeHis(item){
+      let remArr = JSON.parse(sessionStorage.getItem('arr').replace(item,''))
+      window.console.log(remArr)
+      let finArr = []
+      for(let i in remArr){
+        window.console.log(remArr[i])
+        if(remArr[i] !== ''){
+          finArr.push(remArr[i])
+        }
+      }
+      this.currentArr = null;
+      this.currentArr = finArr
+      this.arr = null;
+      this.arr = finArr
+      window.console.log(finArr)
+      sessionStorage.setItem('arr',JSON.stringify(finArr))
+      window.console.log(sessionStorage.getItem('arr'))
+      // this.getArr()
+      // window.console.log(sessionStorage)
     },
     toAlbum(id){
       this.$router.push(`/pick/album/${id}`)
     },
     toSinger(id){
       this.$router.push(`/pick/singer/${id}`)
+    },
+    toMv(id){
+      this.$router.push(`/pick/mv/${id}`)
+    },
+    toRadio(id){
+      this.$router.push(`/pick/radio/${id}`)
     }
   }
 }
@@ -250,6 +322,9 @@ export default {
   width: 100%;
   height: 197px;
   padding: 15px 10px 0;
+}
+.body .mr{
+  margin-bottom: 20px;
 }
 .body .title{
   color: #666;
@@ -392,5 +467,56 @@ p{
   color: #fff;
   margin-left: -9px;
   margin-top: -10px;
+}
+.history{
+  display: flex;
+  height: 45px;
+  width: 100%;
+  line-height: 45px;
+  border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.icon1{
+  font-size: 16px;
+  color: rgba(0,0,0,.2);
+}
+.his-name{
+  font-size: 14px;
+  color: #333;
+  width: 280px;
+  margin-left: 20px;
+}
+.icon2{
+  font-size: 13px;
+  color: rgba(0,0,0,.3);
+  margin-left: 20px;
+}
+.sug-top{
+  font-size: 15px;
+  color: #507DAf;
+  height:50px;
+  width: 100%;
+  line-height: 50px;
+  padding: 0 10px;
+}
+.sug-info{
+  display: flex;
+  height: 45px;
+  width: 100%;
+  padding:0 10px;
+  line-height: 45px;
+}
+.sug-info .sear{
+  font-size: 20px;
+  color: rgba(0,0,0,.2);
+}
+.sug-info .sug-name{
+  height: 45px;
+  width: 280px;
+  color: #333;
+  font-size: 15px;
+  margin-left: 15px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>
