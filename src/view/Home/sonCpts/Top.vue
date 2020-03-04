@@ -2,7 +2,7 @@
   <div class="head">
     <img src='../../../assets/img/wyy.png'/>
     <span class="text">
-      网易云音乐
+      音乐播放器
     </span>
     <a href="#">下载APP</a>
   </div>
