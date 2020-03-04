@@ -1,14 +1,14 @@
 module.exports = {
   publicPath:'./',
-  devServer:{
+  aevServer:{
     open:true,
-    host:'localhost',
+    host:"localhost",
     port:8080,
     https:false,
     hotOnly:false,
     proxy:{
       '/api':{
-        target:'http://yangxc.cn:7001/test-api',
+        target:"http://yangxc.cn:7001/test-api",
         ws:true,
         changOrigin:true,
         pathRewrite:{
