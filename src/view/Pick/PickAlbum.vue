@@ -25,7 +25,7 @@
         简介:<br/>
         {{al.album.description}}
       </div>
-      <div class="init-2" v-else>
+      <div class="init-2" v-if="isShow">
         简介:<br/>
         {{al.album.description}}
       </div>
@@ -175,7 +175,6 @@ export default {
   }
   .brief{
     width: 100%;
-    height: 100px;
     color: #666;
     font-size: 14px;
     padding: 10px 10px 0 15px;
@@ -193,9 +192,6 @@ export default {
   .bottom .click{
     font-size: 12px;
     margin-left: 85%;
-  }
-  .brief .active{
-    height: auto;
   }
   .song-title{
     font-size: 12px;
