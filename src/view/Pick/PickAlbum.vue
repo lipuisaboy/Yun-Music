@@ -6,7 +6,7 @@
       <div class="content">
         <div class="left">
           <img :src="al.album.blurPicUrl" alt="">
-          <span class="icon">专辑</span>
+          <span class="icon">专辑.</span>
         </div>
         <div class="right">
           <h2>{{al.album.name}}</h2>
