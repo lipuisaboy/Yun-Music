@@ -2,9 +2,9 @@
   <div class="head">
     <img src='../../../assets/img/wyy.png'/>
     <span class="text">
-      音乐播放器
+      听音乐
     </span>
-    <a href="#">下载APP</a>
+    <a href="#">下载App</a>
   </div>
 </template>
 

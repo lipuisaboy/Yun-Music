@@ -39,6 +39,9 @@ export default {
     _getSongList(){
       getList().then(res => {
         this.list = res.result
+        if(this.list.length > 0) {
+          console.log('哈哈哈')
+        }
       })
     }
   }
